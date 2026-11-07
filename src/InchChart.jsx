@@ -2,6 +2,7 @@ import React from 'react';
 import { usePersist } from './store.js';
 import ResizeHandle from './ResizeHandle.jsx';
 import FitScale from './FitScale.jsx';
+import { inchTickDecimal } from './inchChart.js';
 
 const INCH_MAX = 2;
 const MM_MAX = INCH_MAX * 25.4;
@@ -88,7 +89,8 @@ export default function InchChart({ show = true, fit = 1 }) {
         {inchTicks.map((t, i) => {
           const len = t.fine ? 18 : t.kind === 'thirtysecond' ? 32 : t.kind === 'sixteenth' ? 42 : t.kind === 'eighth' ? 50 : HALF + 8;
           return (
-            <g key={'in-' + i}>
+            <g key={'in-' + i} aria-label={`${fracLabel(i, 64)} = ${inchTickDecimal(i)}`}>
+              <title>{`${fracLabel(i, 64)} = ${inchTickDecimal(i)}`}</title>
               <line
                 x1={CX}
                 y1={t.y}
