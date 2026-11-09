@@ -99,3 +99,12 @@ main{flex:1;display:flex;flex-direction:row;align-items:stretch;min-height:0;min
 .lcd-hval{font-weight:600;white-space:nowrap}
 .fkey .mfrac{font-size:11px;line-height:1}
 .fkey .mfrac-num{border-bottom-width:1.5px}
+/* Fixed-size display: history scrolls inside, current line and result keep fixed slots */
+.lcd{height:330px;min-height:330px;max-height:330px;display:flex;flex-direction:column;overflow:hidden}
+.lcd .ind{flex:0 0 auto}
+.lcd-hist{flex:1 1 auto;min-height:0;max-height:none}
+.lcd-spacer{flex:1 1 auto}
+.lcd .expr{flex:0 0 72px;height:72px;min-height:72px;overflow-y:auto;align-content:center}
+.lcd .result{flex:0 0 92px;height:92px;min-height:92px;overflow:hidden}
+.lcd-hrow{flex-shrink:0}.lcd .ind{position:relative;z-index:1;background:var(--lcd)}
+.lcd-hist{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18px);mask-image:linear-gradient(to bottom,transparent 0,#000 18px)}

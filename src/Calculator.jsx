@@ -80,7 +80,7 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
     );
   };
   // previous calculations shown inside the display, oldest first (the current result is the newest entry)
-  const lcdHist = (res?.value !== undefined ? hist.slice(1, 13) : hist.slice(0, 12)).slice().reverse();
+  const lcdHist = (res?.value !== undefined ? hist.slice(1, 51) : hist.slice(0, 50)).slice().reverse();
   const key = (k, i) => (
     <button key={i} className={'key ' + (k[4] || '')} onClick={() => click(k)} aria-label={shift && k[2] ? k[2] : k[0]}>
       {k[2] && <span className="shl">{k[2]}</span>}<span>{shift && k[2] ? k[2] : k[0]}</span>
@@ -121,6 +121,7 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
               <span className="lcd-hval">{renderValue(h.value, false)}</span>
             </button>))}
         </div>}
+        {!(showLcdHist && lcdHist.length > 0) && <div className="lcd-spacer" />}
         <div className="expr" onClick={() => expr && copy(expr, 'expr')} title="Click to copy expression">{expr ? <MathText expr={expr} /> : <span className="muted">0</span>}<span className="caret" /></div>
         <div className={'result' + (res?.error ? ' error' : '')} onClick={() => res?.value !== undefined && copy(String(res.value), 'res')} title="Click to copy result">{res?.error || (res?.value !== undefined ? renderValue(res.value, true) : '')}</div>
         {copied && <div className="toast">Copied {copied === 'expr' ? 'expression' : 'result'}</div>}
