@@ -15,6 +15,7 @@ To install a specific version, pass it as an argument, for example `bash scripts
     npm run build    # production build in dist/
     npm test         # conversion + calculator smoke tests
     node --test test-inch-chart.mjs # exact fractional-inch decimal tests
+    node --test test-drill-data.mjs # drilling guide data checks (row counts, order, spot values)
     npm run app      # build + launch desktop app (Electron)
     npm run dist     # macOS app folder in release/
     npm run dist:win # Windows portable .exe in release/
@@ -30,13 +31,18 @@ To install a specific version, pass it as an argument, for example `bash scripts
 - `src/Calculator.jsx`, `src/calc.js`: calculator UI and evaluation
 - `src/BendChart.jsx`, `src/bendData.js`: bend chart and its data
 - `src/InchChart.jsx`: inch/fraction chart
+- `src/DrillGuide.jsx`, `src/drillData.js`: metal drilling reference guide and its data
+- `docs/reference/`: reference PDFs bundled with the desktop app
 - `src/FitScale.jsx`, `src/ResizeHandle.jsx`: window scaling and resize
 - `src/store.js`: localStorage persistence
 - `electron/main.cjs`, `electron/preload.cjs`: desktop shell
 - `test.mjs`: smoke tests; `docs/screenshots/`: UI screenshots (v1, v2)
 
+## Metal drilling guide
+The drilling guide panel transcribes the IRWIN Metal Drilling Reference Guide. The panel shows an RPM calculator (RPM = SFM × 3.82 ÷ drill diameter; pick a material and type a drill size such as 1/4, .25, #7, F or 6 mm) and the usual NC/NF and coarse metric tap drills. Click it to see the full guide: cutting speeds, feed per revolution, deep-hole speed and feed reduction, and all 187 rows of the Tap & Drill Selection Chart. Hover a row to see its decimal, mm value and taps. The links open the OSG Drilling Technical Guide (Vol 1) and the IRWIN PDF. The desktop app opens its bundled copies in your PDF viewer, and the web version opens them online.
+
 ## Enlarged panels
-Click the inch chart or the folding table to open it enlarged in a pop-up. Click anywhere on the pop-up (or press Esc) to close it.
+Click the inch chart, the folding table or the drilling guide to open it enlarged in a pop-up. Click anywhere on the pop-up (or press Esc) to close it.
 
 ## Web version
 `web/Scalar.html` is a single self-contained file: open it in any modern browser, no install or server needed. Settings are saved in the browser's local storage. Rebuild it with `npm run build:web`.

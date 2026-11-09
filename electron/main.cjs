@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -23,6 +23,16 @@ ipcMain.on('scalar-state-save', (_event, data) => {
   try {
     fs.writeFileSync(statePath(), JSON.stringify(data));
   } catch (_) {}
+});
+
+// Reference PDFs bundled with the app (electron-builder extraResources -> resources/docs).
+const DOCS = new Set(['osg-drilling-technical-guide-vol1.pdf', 'irwin-metal-drilling-reference-guide.pdf']);
+ipcMain.handle('scalar-open-doc', async (_event, name) => {
+  if (!DOCS.has(name)) return 'unknown document';
+  const file = app.isPackaged
+    ? path.join(process.resourcesPath, 'docs', name)
+    : path.join(__dirname, '..', 'docs', 'reference', name);
+  return shell.openPath(file);
 });
 
 function createWindow() {

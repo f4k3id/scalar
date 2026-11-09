@@ -52,6 +52,15 @@
           ]
         }
       ]
-    }
+    },
+    "extraResources": [
+      {
+        "from": "docs/reference",
+        "to": "docs",
+        "filter": [
+          "*.pdf"
+        ]
+      }
+    ]
   }
 }

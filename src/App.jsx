@@ -3,6 +3,7 @@ import Converter from './Converter.jsx';
 import Calculator from './Calculator.jsx';
 import InchChart from './InchChart.jsx';
 import BendChart from './BendChart.jsx';
+import DrillGuide from './DrillGuide.jsx';
 import { usePersist } from './store.js';
 
 const TOGGLES = [
@@ -12,6 +13,7 @@ const TOGGLES = [
   { key: 'hist', hide: 'Hide history', show: 'Show history' },
   { key: 'inch', hide: 'Hide inch chart', show: 'Show inch chart' },
   { key: 'bend', hide: 'Hide folding table', show: 'Show folding table' },
+  { key: 'drill', hide: 'Hide drilling guide', show: 'Show drilling guide' },
 ];
 
 export default function App() {
@@ -24,6 +26,7 @@ export default function App() {
   const [showKeypad, setShowKeypad] = usePersist('showKeypad', true);
   const [showInch, setShowInch] = usePersist('showInch', true);
   const [showBend, setShowBend] = usePersist('showBend', true);
+  const [showDrill, setShowDrill] = usePersist('showDrill', true);
   const [settings, setSettings] = usePersist('settings', { angle: 'deg', frac: true, hist: true });
   const showHist = settings.hist !== false;
 
@@ -33,6 +36,7 @@ export default function App() {
     keypad: showKeypad,
     inch: showInch,
     bend: showBend,
+    drill: showDrill,
     hist: showHist,
   };
   const setters = {
@@ -41,6 +45,7 @@ export default function App() {
     keypad: setShowKeypad,
     inch: setShowInch,
     bend: setShowBend,
+    drill: setShowDrill,
     hist: (on) => setSettings((cur) => ({ ...cur, hist: on })),
   };
 
@@ -71,7 +76,7 @@ export default function App() {
       ro.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [showCats, showUnits, showKeypad, showInch, showBend, showHist]);
+  }, [showCats, showUnits, showKeypad, showInch, showBend, showDrill, showHist]);
 
   return (
     <div className="app">
@@ -99,6 +104,7 @@ export default function App() {
             <Calculator showKeypad={showKeypad} settings={settings} setSettings={setSettings} fit={fit} />
             <InchChart show={showInch} fit={fit} />
             <BendChart show={showBend} fit={fit} />
+            <DrillGuide show={showDrill} fit={fit} />
           </div>
         </div>
       </main>

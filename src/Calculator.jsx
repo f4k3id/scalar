@@ -69,7 +69,7 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
   useEffect(() => {
     const map = { '*': '×', '/': '÷', '-': '−', '+': '+', '(': '(', ')': ')', '.': '.', ',': '.', '^': '^(', '%': '%', '!': '!' };
     const h = (e) => {
-      if (e.target.closest('input, textarea, .modal') || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.target.closest('input, textarea, select, .modal') || e.ctrlKey || e.metaKey || e.altKey) return;
       let ins = null;
       if (/^[0-9]$/.test(e.key)) ins = e.key;
       else if (map[e.key]) ins = map[e.key];

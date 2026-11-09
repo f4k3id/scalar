@@ -134,3 +134,59 @@ main{flex:1;display:flex;flex-direction:row;align-items:stretch;min-height:0;min
 .dec-frac.whole{font-size:20px;font-weight:500}
 .dec-val{fill:#e8eaed;font-size:14px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .dec-val.strong{font-weight:700}
+
+/* Metal drilling reference guide panel */
+.drill-guide{min-width:300px}
+.drill-compact{display:flex;flex-direction:column;gap:10px;width:540px;padding:0 4px}
+.drill-head h3{margin:6px 0 4px;font-size:14px}
+.drill-head .bend-sub{margin:0}
+.drill-calc{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;cursor:default}
+.drill-calc-row{display:grid;grid-template-columns:1fr 130px;gap:8px}
+.drill-calc label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.03em}
+.drill-calc select,.drill-calc input{font-size:13px;font-weight:400;color:var(--text);background:#1a1d20;border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%;font-family:inherit}
+.drill-calc input{font-variant-numeric:tabular-nums}
+.drill-calc-out{display:flex;flex-direction:column;gap:2px}
+.drill-calc-out .rpm{font-size:22px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+.drill-calc-out .rpm small{font-size:12px;color:var(--muted);font-weight:600}
+.drill-calc-out .muted{font-size:12px}
+.drill-formula{font-size:11px;color:var(--muted)}
+.drill-minis{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.drill-minis .drill-table{width:100%}
+.drill-sub{margin:2px 0 -4px;font-size:12px;color:var(--acc)}
+.drill-table{border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.drill-table th,.drill-table td{border:1px solid #3a3f44;padding:3px 6px;text-align:center}
+.drill-table thead th{background:#2a2e32;font-weight:600;color:var(--muted);font-size:11px;line-height:1.2}
+.drill-table tbody tr:nth-child(even) td,.drill-table tbody tr:nth-child(even) th{background:#2a2e32}
+.drill-table tbody tr:hover td,.drill-table tbody tr:hover th{background:rgba(164,198,140,.22)}
+.drill-table td.tap{text-align:left}
+.drill-table td.num{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px}
+.drill-table tbody th{font-weight:600}
+.drill-foot{margin:0;font-size:11px;color:var(--muted);line-height:1.35}
+.drill-docs{display:flex;flex-wrap:wrap;gap:6px 12px}
+.drill-docs a{font-size:12px;color:var(--acc);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:#1a1d20;cursor:pointer}
+.drill-docs a:hover{color:var(--text);border-color:var(--acc)}
+.drill-full{display:flex;gap:22px;align-items:flex-start;width:max-content}
+.drill-ref{width:450px;display:flex;flex-direction:column;gap:6px}
+.drill-ref h3,.drill-chart h3{margin:0 0 4px;font-size:16px}
+.drill-ref h4{margin:8px 0 2px;font-size:13px;color:var(--acc)}
+.drill-ref h4 .muted{font-weight:500;font-size:12px}
+.drill-table.speeds{width:100%}
+.drill-table.speeds td{text-align:left}
+.drill-table.speeds td.num{text-align:right}
+.drill-table.speeds tr.sub td:first-child{padding-left:22px;color:#d0d3d8}
+.drill-table.feeds,.drill-table.depth{width:100%}
+.drill-table.feeds th,.drill-table.feeds td{padding:3px 4px;font-size:11px}
+.drill-note{margin:0;font-size:11px;color:var(--muted)}
+.drill-formula.big{font-size:14px;color:var(--text);display:flex;align-items:center;gap:8px;margin:4px 0}
+.drill-formula .frac{display:inline-flex;flex-direction:column;align-items:center}
+.drill-formula .frac span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px 1px}
+.drill-formula .frac span:last-child{padding-top:1px}
+.drill-text{margin:0;font-size:11.5px;line-height:1.4;color:#d0d3d8;white-space:normal}
+.drill-chart{display:flex;flex-direction:column;gap:6px}
+.drill-groups{display:flex;gap:10px;align-items:flex-start}
+.drill-table.full{font-size:11px}
+.drill-table.full th,.drill-table.full td{padding:1.5px 5px}
+.drill-table.full td{text-align:left}
+.drill-table.full td.num{text-align:center}
+.drill-legend{display:grid;grid-template-columns:repeat(3,max-content);gap:2px 22px;font-size:11px;color:var(--muted);justify-content:end}
+.drill-legend b{color:var(--text)}
