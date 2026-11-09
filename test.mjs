@@ -1,5 +1,5 @@
 import { CATEGORIES, convert } from './src/units.js';
-import { evaluate, asFraction, fractionParts, tokenizeExpr } from './src/calc.js';
+import { evaluate, asFraction, fractionParts, tokenizeExpr, endsWithOperand, fractionCaretMove } from './src/calc.js';
 const U=(c,u)=>CATEGORIES.find(x=>x.id===c).units.find(x=>x.id===u);
 const t=(n,a,b)=>{const ok=Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(b));console.log(ok?'PASS':'FAIL',n,a,b);if(!ok)process.exitCode=1};
 t('100C->F',convert(U('temperature','C'),U('temperature','F'),100),212);
@@ -20,3 +20,6 @@ const fp=fractionParts(-0.375);t('frac parts',fp.neg&&fp.n==='3'&&fp.d==='8'?1:0
 const tk=tokenizeExpr('1⁄32+5');t('tokenize frac',tk[0].t==='frac'&&tk[0].num==='1'&&tk[0].den==='32'&&tk[1].t==='op'?1:0,1);
 const tk2=tokenizeExpr('7⁄');t('tokenize open frac',tk2[0].t==='frac'&&tk2[0].den===''?1:0,1);
 try{evaluate('1⁄');console.log('FAIL empty denominator');process.exitCode=1}catch{console.log('PASS empty denominator errors')}
+
+t('empty entry not operand',endsWithOperand('')?0:1,1);t('after + not operand',endsWithOperand('2+')?0:1,1);t('after 7 operand',endsWithOperand('7')?1:0,1);
+t('down to denominator',fractionCaretMove('12⁄5',1,'down'),4);t('up to numerator',fractionCaretMove('12⁄5',4,'up'),2);

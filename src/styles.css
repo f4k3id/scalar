@@ -108,3 +108,12 @@ main{flex:1;display:flex;flex-direction:row;align-items:stretch;min-height:0;min
 .lcd .result{flex:0 0 92px;height:92px;min-height:92px;overflow:hidden}
 .lcd-hrow{flex-shrink:0}.lcd .ind{position:relative;z-index:1;background:var(--lcd)}
 .lcd-hist{-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18px);mask-image:linear-gradient(to bottom,transparent 0,#000 18px)}
+
+/* Display text is selectable with the mouse */
+.lcd,.lcd *{user-select:text;-webkit-user-select:text}
+.lcd .expr,.lcd .result{cursor:text}
+.lcd-hrow{cursor:text}
+.lcd .ind{user-select:none;-webkit-user-select:none}
+.pickable{cursor:pointer}
+.slot-wrap{display:inline-flex;align-items:center}
+.lcd ::selection{background:#21242755}

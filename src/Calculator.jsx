@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { evaluate, fractionParts, formatResult } from './calc.js';
+import { evaluate, fractionParts, formatResult, endsWithOperand, fractionCaretMove } from './calc.js';
 import MathText, { Frac } from './MathText.jsx';
 import { usePersist } from './store.js';
 import ResizeHandle from './ResizeHandle.jsx';
@@ -17,7 +17,15 @@ const MAIN = [
 ];
 
 export default function Calculator({ showKeypad, settings, setSettings, fit = 1 }) {
-  const [expr, setExpr] = useState('');
+  const [ed, setEd] = useState({ e: '', c: 0 }); // expression text and caret position
+  const expr = ed.e;
+  const setExpr = (next) => setEd((cur) => { const e = typeof next === 'function' ? next(cur.e) : next; return { e, c: e.length }; });
+  const moveCaret = (dir) => setEd((cur) => {
+    if (dir === 'left') return { ...cur, c: Math.max(0, cur.c - 1) };
+    if (dir === 'right') return { ...cur, c: Math.min(cur.e.length, cur.c + 1) };
+    const to = fractionCaretMove(cur.e, cur.c, dir);
+    return to == null ? cur : { ...cur, c: to };
+  });
   const [res, setRes] = useState(null); // {value, error}
   const [shift, setShift] = useState(false);
   const [ans, setAns] = usePersist('ans', 0);
@@ -29,7 +37,13 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
 
   const press = useCallback((ins) => {
     if (ins === 'AC') { setExpr(''); setRes(null); return; }
-    if (ins === 'DEL') { setExpr(e => e.replace(/(sin⁻¹\(|cos⁻¹\(|tan⁻¹\(|log\(|ln\(|sin\(|cos\(|tan\(|abs\(|Ans|10\^\(|e\^\(|\^\(1÷|⁻¹|.)$/u, '')); return; }
+    if (ins === 'DEL') {
+      setEd(({ e, c }) => {
+        const pre = e.slice(0, c).replace(/(sin⁻¹\(|cos⁻¹\(|tan⁻¹\(|log\(|ln\(|sin\(|cos\(|tan\(|abs\(|Ans|10\^\(|e\^\(|\^\(1÷|⁻¹|.)$/u, '');
+        return { e: pre + e.slice(c), c: pre.length };
+      });
+      return;
+    }
     if (ins === '=') {
       setExpr(e => {
         try { const v = evaluate(e, { angle: settings.angle, ans }); setRes({ value: v }); setAns(v);
@@ -39,13 +53,18 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
       });
       return;
     }
-    setExpr(e => {
+    const fresh = res && res.value !== undefined && ed.e;
+    if (fresh) setRes(null);
+    setEd(({ e, c }) => {
       // after a result, operators continue from Ans, digits start fresh
-      if (res && res.value !== undefined && e) { setRes(null); return (/^[+−×÷^²³⁻¹!%⁄]/.test(ins) ? 'Ans' : '') + ins; }
-      return e + ins;
+      if (fresh) { e = /^[+−×÷^²³⁻¹!%⁄]/.test(ins) ? 'Ans' : ''; c = e.length; }
+      const pre = e.slice(0, c), post = e.slice(c);
+      // fraction key with nothing before it: cursor goes into the empty numerator (top box) first
+      if (ins === '⁄' && !endsWithOperand(pre)) return { e: pre + ins + post, c: pre.length };
+      return { e: pre + ins + post, c: pre.length + ins.length };
     });
     setRes(r => (r && r.error ? null : r));
-  }, [settings.angle, ans, res]);
+  }, [settings.angle, ans, res, ed.e]);
 
   useEffect(() => {
     const map = { '*': '×', '/': '÷', '-': '−', '+': '+', '(': '(', ')': ')', '.': '.', ',': '.', '^': '^(', '%': '%', '!': '!' };
@@ -58,6 +77,7 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
       else if (e.key === 'Backspace') ins = 'DEL';
       else if (e.key === 'Escape') ins = 'AC';
       else if (e.key === 'p') ins = 'π';
+      else if (e.key.startsWith('Arrow')) { e.preventDefault(); moveCaret(e.key.slice(5).toLowerCase()); return; }
       if (ins) { e.preventDefault(); press(ins); }
     };
     window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h);
@@ -116,14 +136,14 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
         <div className="ind"><span className={shift ? 'on' : ''}>S</span><span>{settings.angle === 'deg' ? 'D' : 'R'}</span><span>{settings.frac ? 'a b/c' : ''}</span></div>
         {showLcdHist && lcdHist.length > 0 && <div className="lcd-hist" ref={lcdHistRef}>
           {lcdHist.map((h, i) => (
-            <button key={i} type="button" className="lcd-hrow" onClick={() => { setExpr(h.expr); setRes(null); }} title="Reuse expression">
+            <div key={i} role="button" tabIndex={0} className="lcd-hrow" onClick={() => { if (window.getSelection()?.toString()) return; setExpr(h.expr); setRes(null); }} title="Click to reuse, or drag to select">
               <span className="lcd-hexpr"><MathText expr={h.expr} /></span>
               <span className="lcd-hval">{renderValue(h.value, false)}</span>
-            </button>))}
+            </div>))}
         </div>}
         {!(showLcdHist && lcdHist.length > 0) && <div className="lcd-spacer" />}
-        <div className="expr" onClick={() => expr && copy(expr, 'expr')} title="Click to copy expression">{expr ? <MathText expr={expr} /> : <span className="muted">0</span>}<span className="caret" /></div>
-        <div className={'result' + (res?.error ? ' error' : '')} onClick={() => res?.value !== undefined && copy(String(res.value), 'res')} title="Click to copy result">{res?.error || (res?.value !== undefined ? renderValue(res.value, true) : '')}</div>
+        <div className="expr">{expr ? <MathText expr={expr} caret={res?.value !== undefined ? null : ed.c} onCaret={(c) => setEd((cur) => ({ ...cur, c }))} /> : <><span className="caret" /><span className="muted">0</span></>}</div>
+        <div className={'result' + (res?.error ? ' error' : '')}>{res?.error || (res?.value !== undefined ? renderValue(res.value, true) : '')}</div>
         {copied && <div className="toast">Copied {copied === 'expr' ? 'expression' : 'result'}</div>}
       </div>
       <div className="toolbar">

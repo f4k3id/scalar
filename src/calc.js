@@ -58,42 +58,58 @@ export function asFraction(x) {
   return f ? `${f.neg ? '−' : ''}${f.n}/${f.d}` : null;
 }
 
-// Split a display expression into tokens for rendering; fractions become {frac:[num, den]}
+// Split a display expression into tokens for rendering, keeping string positions.
+// Fractions become {t:'frac', num, den, ns, bar, de}: numerator is [ns, bar), denominator is [bar+1, de).
 export function tokenizeExpr(s) {
   const out = [];
   let i = 0;
-  const readGroup = (start) => { // returns index after matching ')', or end of string
+  const readGroup = (start) => {
     let depth = 0, j = start;
     for (; j < s.length; j++) { if (s[j] === '(') depth++; else if (s[j] === ')') { depth--; if (depth === 0) return j + 1; } }
     return j;
   };
+  const push = (t, len, extra = {}) => { out.push({ t, v: s.slice(i, i + len), s: i, e: i + len, ...extra }); i += len; };
   while (i < s.length) {
     const rest = s.slice(i);
     let m;
-    if ((m = rest.match(/^\d*\.?\d+(?:ᴇ[−-]?\d*)?|^\d+\.|^\.(?!\d)/))) { out.push({ t: 'num', v: m[0] }); i += m[0].length; continue; }
-    if ((m = rest.match(/^(Ans|π|e(?![\^]))/))) { out.push({ t: 'const', v: m[0] }); i += m[0].length; continue; }
-    if (rest[0] === '⁄') { out.push({ t: 'fracbar' }); i++; continue; }
+    if ((m = rest.match(/^\d*\.?\d+(?:ᴇ[−-]?\d*)?|^\d+\.|^\.(?!\d)/))) { push('num', m[0].length); continue; }
+    if ((m = rest.match(/^(Ans|π|e(?![\^]))/))) { push('const', m[0].length); continue; }
+    if (rest[0] === '⁄') { push('fracbar', 1); continue; }
     if (rest[0] === '(') {
-      // keep a parenthesized group together only when it is a fraction operand
       const end = readGroup(i);
-      if (s[end] === '⁄' || s[i - 1] === '⁄') { out.push({ t: 'group', v: s.slice(i, end) }); i = end; continue; }
+      if (s[end] === '⁄' || s[i - 1] === '⁄') { push('group', end - i); continue; }
     }
-    if ('+−×÷'.includes(rest[0])) { out.push({ t: 'op', v: rest[0] }); i++; continue; }
-    out.push({ t: 'txt', v: rest[0] }); i++;
+    if ('+−×÷'.includes(rest[0])) { push('op', 1); continue; }
+    push('txt', 1);
   }
-  // fold  operand ⁄ operand  into fraction nodes
+  const isOperand = (tk) => tk && ['num', 'const', 'group'].includes(tk.t);
   const folded = [];
   for (let k = 0; k < out.length; k++) {
     const tk = out[k];
     if (tk.t === 'fracbar') {
-      const prev = folded.length && ['num', 'const', 'group'].includes(folded[folded.length - 1].t) ? folded.pop() : null;
-      const next = out[k + 1] && ['num', 'const', 'group'].includes(out[k + 1].t) ? out[++k] : null;
-      folded.push({ t: 'frac', num: prev ? prev.v : '', den: next ? next.v : '' });
+      const prev = isOperand(folded[folded.length - 1]) ? folded.pop() : null;
+      const next = isOperand(out[k + 1]) ? out[++k] : null;
+      folded.push({ t: 'frac', num: prev ? prev.v : '', den: next ? next.v : '',
+        ns: prev ? prev.s : tk.s, bar: tk.s, de: next ? next.e : tk.s + 1, s: prev ? prev.s : tk.s, e: next ? next.e : tk.s + 1 });
     } else folded.push(tk);
   }
   return folded;
 }
 
+// True when the text before the caret ends with something a fraction can use as its numerator
+export function endsWithOperand(prefix) {
+  return /(\d|\.|\)|π|Ans|(^|[^a-zA-Z])e)$/u.test(prefix);
+}
+
+// Where Up/Down should move the caret inside a typed fraction (or null when not in one)
+export function fractionCaretMove(s, caret, dir) {
+  for (const tk of tokenizeExpr(s)) {
+    if (tk.t !== 'frac') continue;
+    if (dir === 'down' && caret >= tk.ns && caret <= tk.bar) return tk.de;
+    if (dir === 'up' && caret > tk.bar && caret <= tk.de) return tk.bar;
+  }
+  return null;
+}
 export function formatResult(x) {
   const a = Math.abs(x);
   if (x !== 0 && (a >= 1e10 || a < 1e-9)) return x.toExponential(9).replace(/\.?0+e/, 'e').replace('e+', '×10^').replace('e-', '×10^−');
