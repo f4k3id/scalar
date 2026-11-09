@@ -119,9 +119,9 @@ main{flex:1;display:flex;flex-direction:row;align-items:stretch;min-height:0;min
 .lcd ::selection{background:#21242755}
 
 /* Decimal-equivalents table on the inch side of the chart */
-.inch-layout{display:flex;align-items:flex-start;gap:14px}
-.inch-ruler{display:flex;flex-direction:column}
-.dec-table{display:flex;flex-direction:column;border-right:1px solid var(--line);padding-right:10px}
+.inch-layout{display:flex;align-items:flex-start;gap:34px}
+.inch-ruler{display:flex;flex-direction:column;padding-left:8px}
+.dec-table{display:flex;flex-direction:column;border-right:1px solid var(--line);padding-right:22px}
 .dec-head{fill:var(--muted);font-size:13px;font-weight:600;letter-spacing:.04em}
 .dec-rule,.dec-sep{stroke:var(--line);stroke-width:1.2}
 .dec-row{fill:transparent}.dec-row.light{fill:rgba(164,198,140,.16)}.dec-row.strong{fill:rgba(164,198,140,.36)}
