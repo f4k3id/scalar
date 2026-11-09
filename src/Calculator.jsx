@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { evaluate, asFraction, formatResult } from './calc.js';
+import { evaluate, fractionParts, formatResult } from './calc.js';
+import MathText, { Frac } from './MathText.jsx';
 import { usePersist } from './store.js';
 import ResizeHandle from './ResizeHandle.jsx';
 
@@ -40,7 +41,7 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
     }
     setExpr(e => {
       // after a result, operators continue from Ans, digits start fresh
-      if (res && res.value !== undefined && e) { setRes(null); return (/^[+−×÷^²³⁻¹!%]/.test(ins) ? 'Ans' : '') + ins; }
+      if (res && res.value !== undefined && e) { setRes(null); return (/^[+−×÷^²³⁻¹!%⁄]/.test(ins) ? 'Ans' : '') + ins; }
       return e + ins;
     });
     setRes(r => (r && r.error ? null : r));
@@ -65,8 +66,21 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
   const click = (k) => { const ins = shift && k[3] ? k[3] : k[1]; setShift(false); press(ins); };
   const copy = (t, what) => { navigator.clipboard?.writeText(t); setCopied(what); setTimeout(() => setCopied(''), 1200); };
   const showHist = settings.hist !== false;
-  const frac = res?.value !== undefined && settings.frac ? asFraction(res.value) : null;
-  const shown = res?.error || (res?.value !== undefined ? (frac || formatResult(res.value)) : '');
+  const showLcdHist = settings.lcdHist !== false;
+  const lcdHistRef = useRef(null);
+  useEffect(() => { const el = lcdHistRef.current; if (el) el.scrollTop = el.scrollHeight; }, [hist, res]);
+  const renderValue = (v, big) => {
+    const f = settings.frac ? fractionParts(v) : null;
+    if (!f) return <span className="rdec-only">{formatResult(v)}</span>;
+    return (
+      <span className={'rpair' + (big ? ' big' : '')}>
+        <span className="rfrac">{f.neg && <span className="mneg">−</span>}<Frac num={f.n} den={f.d} /></span>
+        <span className="rdec">{formatResult(v)}</span>
+      </span>
+    );
+  };
+  // previous calculations shown inside the display, oldest first (the current result is the newest entry)
+  const lcdHist = (res?.value !== undefined ? hist.slice(1, 13) : hist.slice(0, 12)).slice().reverse();
   const key = (k, i) => (
     <button key={i} className={'key ' + (k[4] || '')} onClick={() => click(k)} aria-label={shift && k[2] ? k[2] : k[0]}>
       {k[2] && <span className="shl">{k[2]}</span>}<span>{shift && k[2] ? k[2] : k[0]}</span>
@@ -100,12 +114,20 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
       {showKeypad && <div className="calc-pad" style={{ width: calcWidth, zoom: keypadScale }}>
       <div className="lcd" aria-live="polite">
         <div className="ind"><span className={shift ? 'on' : ''}>S</span><span>{settings.angle === 'deg' ? 'D' : 'R'}</span><span>{settings.frac ? 'a b/c' : ''}</span></div>
-        <div className="expr" onClick={() => expr && copy(expr, 'expr')} title="Click to copy expression">{expr || <span className="muted">0</span>}<span className="caret" /></div>
-        <div className={'result' + (res?.error ? ' error' : '')} onClick={() => res?.value !== undefined && copy(String(res.value), 'res')} title="Click to copy result">{shown}</div>
+        {showLcdHist && lcdHist.length > 0 && <div className="lcd-hist" ref={lcdHistRef}>
+          {lcdHist.map((h, i) => (
+            <button key={i} type="button" className="lcd-hrow" onClick={() => { setExpr(h.expr); setRes(null); }} title="Reuse expression">
+              <span className="lcd-hexpr"><MathText expr={h.expr} /></span>
+              <span className="lcd-hval">{renderValue(h.value, false)}</span>
+            </button>))}
+        </div>}
+        <div className="expr" onClick={() => expr && copy(expr, 'expr')} title="Click to copy expression">{expr ? <MathText expr={expr} /> : <span className="muted">0</span>}<span className="caret" /></div>
+        <div className={'result' + (res?.error ? ' error' : '')} onClick={() => res?.value !== undefined && copy(String(res.value), 'res')} title="Click to copy result">{res?.error || (res?.value !== undefined ? renderValue(res.value, true) : '')}</div>
         {copied && <div className="toast">Copied {copied === 'expr' ? 'expression' : 'result'}</div>}
       </div>
       <div className="toolbar">
         <button className={'key shift' + (shift ? ' on' : '')} onClick={() => setShift(!shift)} aria-pressed={shift}>SHIFT</button>
+        <button className="key mode fkey" onClick={() => { setShift(false); press('⁄'); }} aria-label="Fraction" title="Fraction: type the numerator, press this key, then the denominator"><Frac num="" den="" /></button>
         <button className="key mode" onClick={() => setSettings({ ...settings, angle: settings.angle === 'deg' ? 'rad' : 'deg' })}>{settings.angle === 'deg' ? 'DEG' : 'RAD'}</button>
         <button className="key mode" onClick={() => setSettings({ ...settings, frac: !settings.frac })} title="Toggle fraction / decimal">S⇔D</button>
         <button className="key mode" onClick={() => res?.value !== undefined && copy(String(res.value), 'res')}>Copy</button>
@@ -119,7 +141,7 @@ export default function Calculator({ showKeypad, settings, setSettings, fit = 1 
         <div className="hist-head"><h3>History</h3><div className="hist-head-acts">{hist.length > 0 && <button className="small" onClick={() => setHist([])}>Clear</button>}<button className="small" onClick={() => setSettings(cur => ({ ...cur, hist: false }))}>Hide</button></div></div>
         {!hist.length && <p className="muted">No calculations yet</p>}
         <ul>{hist.map((h, i) => (
-          <li key={i}><button onClick={() => { setExpr(h.expr); setRes(null); }} title="Reuse expression">{h.expr}</button>
+          <li key={i}><button onClick={() => { setExpr(h.expr); setRes(null); }} title="Reuse expression"><MathText expr={h.expr} /></button>
             <button className="hv" onClick={() => { setExpr(e => (res ? '' : e) + formatResult(h.value).replace('−','−')); setRes(null); }} title="Insert value">= {formatResult(h.value)}</button></li>))}</ul>
       </div>}
     </section>

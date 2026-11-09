@@ -31,3 +31,6 @@ Click the inch chart or the folding table to open it enlarged in a pop-up. Click
 
 ## Web version
 `web/Scalar.html` is a single self-contained file: open it in any modern browser, no install or server needed. Settings are saved in the browser's local storage. Rebuild it with `npm run build:web`.
+
+## Fractions in the calculator
+Type the numerator, press the fraction key (□/□, next to SHIFT), then type the denominator. Fractions show stacked (numerator over a bar over the denominator). Fraction results also show their decimal value, for example 1/32 and 0.03125. Recent calculations scroll inside the display as well as in the History panel; click one to reuse it.
