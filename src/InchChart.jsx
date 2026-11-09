@@ -4,6 +4,7 @@ import ResizeHandle from './ResizeHandle.jsx';
 import FitScale from './FitScale.jsx';
 import { inchTickDecimal } from './inchChart.js';
 import PanelPopup from './PanelPopup.jsx';
+import DecimalTable from './DecimalTable.jsx';
 
 const INCH_MAX = 2;
 const MM_MAX = INCH_MAX * 25.4;
@@ -34,7 +35,7 @@ function fracLabel(i, den) {
 }
 
 export default function InchChart({ show = true, fit = 1 }) {
-  const [width, setWidth] = usePersist('inchWidth', 440);
+  const [width, setWidth] = usePersist('inchWidth', 640);
   const inchTicks = [];
   for (let i = 0; i <= 128; i++) {
     const inch = i / 64;
@@ -79,7 +80,9 @@ export default function InchChart({ show = true, fit = 1 }) {
   if (!show) return null;
 
   const content = (
-    <>
+    <div className="inch-layout">
+      <DecimalTable />
+      <div className="inch-ruler">
       <div className="inch-chart-head">
         <h3>0–2 in → mm</h3>
         <div className="chart-units"><span>in</span><span>mm</span></div>
@@ -129,11 +132,12 @@ export default function InchChart({ show = true, fit = 1 }) {
           );
         })}
       </svg>
-    </>
+      </div>
+    </div>
   );
 
   return (
-    <aside className="inch-chart" style={{ width }} aria-label="Inch to millimeter scale, 0 to 2 inches">
+    <aside className="inch-chart" style={{ width }} aria-label="Inch decimal equivalents and inch to millimeter scale">
       <div className="panel-click" onClick={() => setZoom(true)} title="Click to enlarge">
         <FitScale>
       {content}
