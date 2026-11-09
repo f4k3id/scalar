@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePersist } from './store.js';
 import ResizeHandle from './ResizeHandle.jsx';
 import { TITLE, F_UNIT, DIM_NOTE, V, FLANGE, RADIUS, ROWS, NOTES } from './bendData.js';
 import FitScale from './FitScale.jsx';
+import PanelPopup from './PanelPopup.jsx';
 
 function cell(row, col) {
   const i = col - row.start;
@@ -14,11 +15,11 @@ function cell(row, col) {
 export default function BendChart({ show = true, fit = 1 }) {
   const [width, setWidth] = usePersist('bendWidth', 640);
 
+  const [zoom, setZoom] = useState(false);
   if (!show) return null;
 
-  return (
-    <aside className="bend-chart" style={{ width }} aria-label={TITLE}>
-      <FitScale>
+  const content = (
+    <>
       <div className="bend-head">
         <h3>{TITLE}</h3>
         <p className="bend-sub"><span>{F_UNIT}</span><span>{DIM_NOTE}</span></p>
@@ -69,7 +70,17 @@ export default function BendChart({ show = true, fit = 1 }) {
         {NOTES.map((n) => <li key={n}>{n}</li>)}
         <li>t = Workpiece thickness · r = Inside radius of formed part · v = Vee-die opening · f = Minimum flange</li>
       </ul>
-      </FitScale>
+    </>
+  );
+
+  return (
+    <aside className="bend-chart" style={{ width }} aria-label={TITLE}>
+      <div className="panel-click" onClick={() => setZoom(true)} title="Click to enlarge">
+        <FitScale>
+      {content}
+        </FitScale>
+      </div>
+      <PanelPopup open={zoom} onClose={() => setZoom(false)} label={TITLE + ', enlarged'}>{content}</PanelPopup>
       <ResizeHandle value={width} onChange={setWidth} min={280} max={1100} scale={fit} label="Resize folding table" />
     </aside>
   );

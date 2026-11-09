@@ -25,3 +25,9 @@ Offline app (Vite + React + mathjs), runs in the browser or as an Electron deskt
 - `src/store.js`: localStorage persistence
 - `electron/main.cjs`, `electron/preload.cjs`: desktop shell
 - `test.mjs`: smoke tests; `docs/screenshots/`: UI screenshots (v1, v2)
+
+## Enlarged panels
+Click the inch chart or the folding table to open it enlarged in a pop-up. Click anywhere on the pop-up (or press Esc) to close it.
+
+## Web version
+`web/Scalar.html` is a single self-contained file: open it in any modern browser, no install or server needed. Settings are saved in the browser's local storage. Rebuild it with `npm run build:web`.

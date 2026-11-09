@@ -10,7 +10,8 @@
     "test": "node test.mjs",
     "app": "npm run build && electron .",
     "dist": "npm run build && electron-builder --mac dir",
-    "dist:win": "npm run build && electron-builder --win"
+    "dist:win": "npm run build && electron-builder --win",
+    "build:web": "vite build && node scripts/build-web.mjs"
   },
   "dependencies": {
     "mathjs": "^13.2.0",
@@ -26,17 +27,30 @@
   "build": {
     "appId": "app.scalar",
     "productName": "Scalar",
-    "files": ["dist/**/*", "electron/main.cjs", "electron/preload.cjs"],
-    "directories": { "output": "release" },
+    "files": [
+      "dist/**/*",
+      "electron/main.cjs",
+      "electron/preload.cjs"
+    ],
+    "directories": {
+      "output": "release"
+    },
     "mac": {
       "category": "public.app-category.utilities",
-      "target": ["dir"],
+      "target": [
+        "dir"
+      ],
       "identity": null
     },
     "win": {
       "signAndEditExecutable": false,
       "target": [
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     }
   }

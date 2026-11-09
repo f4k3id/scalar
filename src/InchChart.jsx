@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePersist } from './store.js';
 import ResizeHandle from './ResizeHandle.jsx';
 import FitScale from './FitScale.jsx';
 import { inchTickDecimal } from './inchChart.js';
+import PanelPopup from './PanelPopup.jsx';
 
 const INCH_MAX = 2;
 const MM_MAX = INCH_MAX * 25.4;
@@ -74,11 +75,11 @@ export default function InchChart({ show = true, fit = 1 }) {
     mm: MM_MAX,
   });
 
+  const [zoom, setZoom] = useState(false);
   if (!show) return null;
 
-  return (
-    <aside className="inch-chart" style={{ width }} aria-label="Inch to millimeter scale, 0 to 2 inches">
-      <FitScale>
+  const content = (
+    <>
       <div className="inch-chart-head">
         <h3>0–2 in → mm</h3>
         <div className="chart-units"><span>in</span><span>mm</span></div>
@@ -128,7 +129,17 @@ export default function InchChart({ show = true, fit = 1 }) {
           );
         })}
       </svg>
-      </FitScale>
+    </>
+  );
+
+  return (
+    <aside className="inch-chart" style={{ width }} aria-label="Inch to millimeter scale, 0 to 2 inches">
+      <div className="panel-click" onClick={() => setZoom(true)} title="Click to enlarge">
+        <FitScale>
+      {content}
+        </FitScale>
+      </div>
+      <PanelPopup open={zoom} onClose={() => setZoom(false)} label="Inch to millimeter scale, enlarged">{content}</PanelPopup>
       <ResizeHandle value={width} onChange={setWidth} min={260} max={720} scale={fit} label="Resize inch chart" />
     </aside>
   );
