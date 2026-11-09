@@ -1,6 +1,15 @@
 # Scalar — Scientific Calculator + Unit Converter
 Offline app (Vite + React + mathjs), runs in the browser or as an Electron desktop app. No accounts, tracking or network calls.
 
+## Install on a Mac (Apple Silicon)
+Paste this in Terminal. It downloads the latest release, checks its SHA-256 against the release's `SHA256SUMS`, installs `Scalar.app` in `/Applications`, clears the Gatekeeper quarantine flag (the app is not notarized) and opens it. Existing history and settings are kept.
+
+    curl -fsSL https://raw.githubusercontent.com/f4k3id/scalar/master/scripts/install-mac.sh | bash
+
+To install a specific version, pass it as an argument, for example `bash scripts/install-mac.sh 1.1.0`. Windows and web builds are on the [Releases](https://github.com/f4k3id/scalar/releases) page.
+
+## Development
+
     npm install
     npm run dev      # http://localhost:5173
     npm run build    # production build in dist/
@@ -11,7 +20,7 @@ Offline app (Vite + React + mathjs), runs in the browser or as an Electron deskt
     npm run dist:win # Windows portable .exe in release/
 
 - Left: converter (Length, Weight, Temperature, Volume, Area, Speed, Time, Data, Energy). Type in any row; all rows update. Star categories/units to pin them. "+ Custom unit" adds a unit defined relative to the category base unit (temperature: factor + offset to kelvin). Custom units can be edited/deleted.
-- Right: fx-991ES-style calculator: SHIFT layer (inverse trig, x!, ∛, 10ˣ, eˣ, |x|, π, e, %), DEG/RAD, S⇔D fraction toggle, Ans, history (click to reuse, capped at 100), click display to copy.
+- Right: fx-991ES-style calculator: SHIFT layer (inverse trig, x!, ∛, 10ˣ, eˣ, |x|, π, e, %), DEG/RAD, S⇔D fraction toggle, Ans, history (click to reuse, capped at 100), Copy button.
 - Inch chart: hover a fractional label or tick to see its exact decimal value in inches (for example, 3/8 = 0.375").
 - Keyboard: digits, + - * / ^ ( ) . % !, Enter/=, Backspace, Escape, p = π.
 - Saved in localStorage: favorites, custom units, settings, history, Ans, last category and values.
